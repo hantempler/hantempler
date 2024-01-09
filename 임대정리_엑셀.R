@@ -10,9 +10,9 @@ library(lubridate)
 
 ##파일불러오기
 
-
-
-apt_rent <- read_excel("202303.xlsx", skip = 15)
+filename<-"202312.xlsx"
+savename<-paste0(str_sub(filename,1,6),".","rdata")
+apt_rent <- read_excel(filename, skip = 15)
 
 
 ##데이터유형 정리
@@ -136,7 +136,7 @@ table(is.na(apt_rent$conyear))
 
 objects_in_memory <- ls()
 # 삭제하고 싶지 않은 객체의 이름
-object_to_keep <- "apt_rent"
+object_to_keep <- c("apt_rent","임대_2023","savename")
 
 # objects_in_memory에서 object_to_keep를 제외한 나머지 객체 삭제
 objects_to_remove <- setdiff(objects_in_memory, object_to_keep)
@@ -145,13 +145,8 @@ objects_to_remove <- setdiff(objects_in_memory, object_to_keep)
 rm(list = objects_to_remove)
 
 
-filename<-c("R202303")
-
-old_name <- apt_rent
-new_name <- file
 
 
-file.rename(apt_rent,filename[1])
+save(apt_rent, file = savename)
 
-savename<-paste0(filename[1],".Rdata")
-     
+임대_2023<-rbind(임대_2023, apt_rent)
