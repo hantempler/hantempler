@@ -1,24 +1,13 @@
-a <- seq(from = 1, to =20000, by=1000)
-b <- seq(from = 1000, to =20000, by=1000)
-
-
-
-a_1<-as.integer()
-b_1<-data.frame(b)
-c<-cbind(a,b)
-c<-data.frame(c)
-
-c$a<-as.integer(c$a)
-c$b<-as.integer(c$b)
-
+c<-c(1:200)
 
 cnt<-0
 url_list<-list()
 
-for(i in 1:nrow(c)){
+for(i in 1:length(c)){
   cnt <- cnt+1
-  url_list[cnt] <- paste0("https://apis.data.go.kr/1613000/AptListService2/getTotalAptList?serviceKey=cyquWr9Wfk59TupGu4hiOUNQzg4SxLBUUrDFZDXf5xNR%2B%2FJGexr%2FGqrqZ%2FY8ZzIvWr1ZBWrHHRZoHnKAbDUxAQ%3D%3D&pageNo=1&numOfRows=",
-                          c[i,2])
+  url_list[cnt] <- paste0("http://apis.data.go.kr/1613000/AptListService2/getTotalAptList?serviceKey=cyquWr9Wfk59TupGu4hiOUNQzg4SxLBUUrDFZDXf5xNR%2B%2FJGexr%2FGqrqZ%2FY8ZzIvWr1ZBWrHHRZoHnKAbDUxAQ%3D%3D&pageNo=",
+                          c[i],
+                          "&numOfRows=100")
   } 
 
 
@@ -29,6 +18,7 @@ library(stringr)    # install.packages("stringr")
 raw_data <- list()        # xml 임시 저장소
 root_Node <- list()       # 거래내역 추출 임시 저장소
 total <- list()           # 거래내역 정리 임시 저장소
+aptcode<-data.table()
 
 for(i in 1:length(url_list)){
   tryCatch(
@@ -46,18 +36,34 @@ for(i in 1:length(url_list)){
       for(m in 1:size){  # 전체 거래건수(size)만큼 반복
         #---# 세부 거래내역 분리   
         item_temp <- xmlSApply(items[[m]],xmlValue)
-        item_temp_dt <- data.table(year = item_temp[4],     # 거래 년 
-                                   month = item_temp[8],    # 거래 월
-                                   day = item_temp[9],      # 거래 일
-                                   price = item_temp[1],    # 거래금액
-                                   code = item_temp[13],    # 지역코드
-                                   dong_nm = item_temp[6],  # 법정동
-                                   jibun = item_temp[12]   # 지번
-                                   )   # 층수 
+        
+        if (length(item_temp) == 7){
+          item_temp_dt <- data.table(as1 = item_temp[1],     # 거래 년 
+          as2 = item_temp[2],    # 거래 월
+          as3 = item_temp[3],      # 거래 일
+          as4 = item_temp[4],    # 거래금액
+          bjdcode = item_temp[5],    # 지역코드
+          kaptcode = item_temp[6],  # 법정동
+          kaptname = item_temp[7]
+          )
+        }
+        else if(length(item_temp) == 6){
+          item_temp_dt <- data.table(as1 = item_temp[1],     # 거래 년 
+                                     as2 = item_temp[2],    # 거래 월
+                                     as3 = item_temp[3],      # 거래 일
+                                     as4 = "",    # 거래금액
+                                     bjdcode = item_temp[4],    # 지역코드
+                                     kaptcode = item_temp[5],  # 법정동
+                                     kaptname = item_temp[6]
+          )
+        }
+        
         item[[m]] <- item_temp_dt}
       
       apt_bind <- rbindlist(item)     # 통합 저장
-      
+      aptcode<-rbind(aptcode,apt_bind)
+      msg <- paste0("[", i,"/",length(url_list), "] 수집한 데이터를 aptcode 테이블에 결합합니다.") # 알림 메시지
+      cat(msg, "\n\n")
       #---# [5단계: 응답 내역 저장]
       
     }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
