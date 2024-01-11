@@ -71,3 +71,22 @@ for(i in 197:200){
 }   # 바깥쪽 반복문 종료
 
 
+folder_path <- "C:/Users/john/Desktop/새 폴더/02"
+file_list <- list.files(path = folder_path, pattern = "\\.rdata$", full.names = TRUE )
+
+code<-data.table()
+apt_code<-data.table()
+
+code_all<-data.table()
+code_all$as1<-data.table()
+code_all$as2<-data.table()
+code_all$as3<-data.table()
+code_all$as4<-data.table()
+code_all$bjdcode<-data.table()
+code_all$kaptcode<-data.table()
+code_all$kaptname<-data.table()
+
+for (i in 1:length(file_list)) {
+  load(file_list[i])
+  code_all<- rbind(code_all,apt_bind)
+}
