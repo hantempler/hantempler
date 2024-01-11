@@ -61,13 +61,13 @@ for(i in 1:length(url_list)){
         item[[m]] <- item_temp_dt}
       
       apt_bind <- rbindlist(item)     # 통합 저장
-      aptcode<-rbind(aptcode,apt_bind)
-      msg <- paste0("[", i,"/",length(url_list), "] 수집한 데이터를 aptcode 테이블에 결합합니다.") # 알림 메시지
+      assign(paste0("apt_bind_", i), apt_bind)
+      save(apt_bind, file = paste0("apt_bind_", i, ".rdata")
+      msg <- paste0("[", i,"/",length(url_list), "] 수집한 데이터를 aptcode 테이블에 결합한 후 저장합니다.") # 알림 메시지
       cat(msg, "\n\n")
       #---# [5단계: 응답 내역 저장]
       
     }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
 }   # 바깥쪽 반복문 종료
-
 
 
