@@ -142,3 +142,6 @@ print(monthly_sales_wide)
 # 중복된 행 지우기, 남겨놓고
 
 conyear<-distinct(conyear,juso,.keep_all=TRUE) 
+
+# 열이름 한꺼번에 바꾸기
+colnames(df) <- new_col_names
